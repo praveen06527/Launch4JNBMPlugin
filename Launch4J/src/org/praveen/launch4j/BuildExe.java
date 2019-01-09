@@ -9,9 +9,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.util.jar.Attributes;
 import java.util.jar.JarInputStream;
 import javax.xml.parsers.DocumentBuilder;
@@ -25,7 +25,6 @@ import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionRegistration;
 import org.openide.filesystems.FileObject;
-import org.openide.util.Exceptions;
 import org.openide.util.NbBundle.Messages;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
@@ -42,11 +41,12 @@ import org.xml.sax.InputSource;
 @ActionReference(path = "Loaders/application/x-java-archive/Actions", position = -50, separatorBefore = -100, separatorAfter = 0)
 @Messages("CTL_BuildExe=Build EXE")
 public final class BuildExe implements ActionListener {
-
+    
     private final DataObject context;
 
     public BuildExe(DataObject context) {
         this.context = context;
+        System.setOut(new PrintStream(new TextAreaOutputStream(BuildEXEOutput.logger)));
     }
 
     @Override
@@ -95,14 +95,14 @@ public final class BuildExe implements ActionListener {
                             System.out.println(line);
                         }
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        System.out.println(e.getMessage());
                     }
                 }
             }).start();
             p.waitFor();
         } catch (Exception ex) {
-            Exceptions.printStackTrace(ex);
-            System.out.println("Failed to generate exe");
+            System.out.println("Error:"+ex.getMessage());
+            System.out.println("Please add launch4j.exe to Path environment variable and restart the IDE");
         } finally {
         }
     }
